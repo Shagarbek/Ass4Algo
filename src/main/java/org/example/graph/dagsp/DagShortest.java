@@ -42,7 +42,6 @@ public class DagShortest {
         int src = (g.source >=0 && g.source < n) ? g.source : 0;
         dist[src] = 0.0;
 
-        // compute topo on original graph to ensure DAG order; if graph has cycles topo may be incomplete
         var topoRes = TopoSorter.kahnSort(g, null, metrics);
         List<Integer> topo = topoRes.topoOrder;
 

@@ -58,7 +58,6 @@ public class DagLongest {
         metrics.dagRelaxSuccess += succ;
         metrics.dagTimeNs += (t1 - t0);
 
-        // find maximum
         double maxVal = Double.NEGATIVE_INFINITY;
         int target = -1;
         for (int i = 0; i < n; i++) {
