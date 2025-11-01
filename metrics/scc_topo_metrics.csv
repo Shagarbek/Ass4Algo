@@ -1,0 +1,10 @@
+graph,n,edges,scc_count,condensed_nodes,condensed_edges,topo_pushes,topo_pops,topo_time_ms
+large_01_perf_sparse.json,25,24,25,25,24,25,25,0.921
+large_02_perf_dense.json,20,95,1,1,0,1,1,0.008
+large_03_random.json,30,69,30,30,69,30,30,0.077
+medium_01_mixed.json,12,46,1,1,0,1,1,0.009
+medium_02_dense.json,14,127,1,1,0,1,1,0.008
+medium_03_sparse.json,11,22,11,11,22,11,11,0.023
+small_01_dag.json,6,7,6,6,7,6,6,0.014
+small_02_cycle.json,6,18,1,1,0,1,1,0.006
+small_03_mixed.json,8,22,1,1,0,1,1,0.010

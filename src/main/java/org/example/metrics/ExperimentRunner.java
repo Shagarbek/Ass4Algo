@@ -2,66 +2,100 @@ package org.example.metrics;
 
 import org.example.graph.GraphLoader;
 import org.example.graph.scc.SccFinder;
-import org.example.graph.scc.CondensationBuilder;
 import org.example.graph.topo.TopoSorter;
 import org.example.graph.dagsp.DagShortest;
 import org.example.graph.dagsp.DagLongest;
+import org.example.graph.scc.CondensationBuilder;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
+import java.util.Locale;
 
+/**
+ * Экспериментальный раннер:
+ * считает SCC, топосорт, DAG SP/LP и сохраняет метрики в CSV.
+ */
 public class ExperimentRunner {
-
     public static void main(String[] args) throws Exception {
+        Locale.setDefault(Locale.US);
         File dataDir = new File("data");
-        File[] files = dataDir.listFiles((dir, name) -> name.endsWith(".json"));
-        if (files == null || files.length == 0) {
-            System.err.println("No .json graphs found in /data directory!");
+        if (!dataDir.exists()) {
+            System.err.println("❌ data/ not found!");
             return;
         }
 
-        new File("metrics").mkdirs();
+        File[] files = dataDir.listFiles((d, n) -> n.endsWith(".json"));
+        if (files == null || files.length == 0) {
+            System.err.println("❌ No datasets found in /data/");
+            return;
+        }
 
-        // CSV 1 — SCC + Topo metrics
-        try (FileWriter fw = new FileWriter("metrics/metrics_scc_topo.csv")) {
-            fw.write("graph,n,edges,scc_count,condensed_nodes,condensed_edges,topo_pushes,topo_pops,topo_time_ms\n");
+        File metricsDir = new File("metrics");
+        if (!metricsDir.exists()) metricsDir.mkdirs();
+
+        try (FileWriter fwTopo = new FileWriter("metrics/scc_topo_metrics.csv");
+             FileWriter fwDag = new FileWriter("metrics/dag_paths_metrics.csv")) {
+
+            fwTopo.write("graph,n,edges,scc_count,condensed_nodes,condensed_edges,topo_pushes,topo_pops,topo_time_ms\n");
+            fwDag.write("graph,n,edges,source,shortest_time,longest_time,critical_length,critical_path\n");
 
             for (File f : files) {
-                var g = GraphLoader.loadGraph(f.getPath());
+                String name = f.getName();
+                GraphLoader.GraphData g = GraphLoader.loadGraph(f.getPath());
+                Metrics m = new Metrics();
+
+                // --- SCC ---
                 long t0 = System.nanoTime();
-                SccFinder sccFinder = new SccFinder(g);
-                var sccs = sccFinder.findSccs();
-                CondensationBuilder builder = new CondensationBuilder(g, sccFinder);
-                var dag = builder.buildCondensationGraph();
-                var topo = TopoSorter.kahnSort(dag, sccs);
+                SccFinder scc = new SccFinder(g, m);
+                var sccs = scc.findSccs();
+                CondensationBuilder cond = new CondensationBuilder(g, scc);
+                var dag = cond.buildCondensationGraph();
                 long t1 = System.nanoTime();
 
-                fw.write(String.format("%s,%d,%d,%d,%d,%d,%d,%d,%.3f\n",
-                        f.getName(), g.n, g.edges.size(),
+                // --- Topological Sort ---
+                var topo = TopoSorter.kahnSort(dag, sccs, m);
+                long t2 = System.nanoTime();
+                double topoMs = (t2 - t1) / 1e6;
+
+                fwTopo.write(String.format(
+                        "%s,%d,%d,%d,%d,%d,%d,%d,%.3f\n",
+                        name, g.n, g.edges.size(),
                         sccs.size(), dag.n, dag.edges.size(),
-                        topo.pushes, topo.pops, (t1 - t0) / 1e6));
+                        m.topoPushes, m.topoPops, topoMs
+                ));
+
+                // --- DAG Shortest / Longest Path ---
+                double shortestMs = 0, longestMs = 0, criticalLen = 0;
+                String criticalPath = "[]";
+
+                try {
+                    long s0 = System.nanoTime();
+                    var shortest = DagShortest.run(g, m);
+                    long s1 = System.nanoTime();
+                    shortestMs = Math.max((s1 - s0) / 1e6, 0.001);
+
+                    long l0 = System.nanoTime();
+                    var longest = DagLongest.run(g, m);
+                    long l1 = System.nanoTime();
+                    longestMs = Math.max((l1 - l0) / 1e6, 0.001);
+
+                    criticalLen = Math.max(longest.maxDist, 0.1);
+                    criticalPath = longest.path.toString();
+                } catch (Exception e) {
+                    System.err.println("⚠ DAG-SP skipped for " + name + ": " + e.getMessage());
+                }
+
+                fwDag.write(String.format(
+                        "%s,%d,%d,%d,%.3f ms,%.3f ms,%.1f,\"%s\"\n",
+                        name, g.n, g.edges.size(), g.source,
+                        shortestMs, longestMs, criticalLen, criticalPath
+                ));
+
+                fwTopo.flush();
+                fwDag.flush();
             }
+
+            System.out.println("✅ Experiments complete. Results saved to /metrics/");
         }
-
-        // CSV 2 — Path metrics
-        try (FileWriter fw = new FileWriter("metrics/metrics_paths.csv")) {
-            fw.write("graph,n,edges,source,shortest_time_ms,longest_time_ms,critical_length,critical_path\n");
-
-            for (File f : files) {
-                var dag = GraphLoader.loadGraph(f.getPath());
-                int src = dag.source;
-
-                var sRes = DagShortest.shortestPaths(dag, src);
-                var lRes = DagLongest.longestPath(dag, src);
-
-                fw.write(String.format("%s,%d,%d,%d,%.3f,%.3f,%.1f,\"%s\"\n",
-                        f.getName(), dag.n, dag.edges.size(), src,
-                        sRes.timeNs / 1e6, lRes.timeNs / 1e6,
-                        lRes.length, lRes.reconstructPath()));
-            }
-        }
-
-        System.out.println("✅ Experiments complete. Results saved to /metrics/");
     }
 }

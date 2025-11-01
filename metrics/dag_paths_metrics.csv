@@ -1,0 +1,10 @@
+graph,n,edges,source,shortest_time,longest_time,critical_length,critical_path
+large_01_perf_sparse.json,25,24,0,0.832 ms,0.685 ms,114.0,"[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]"
+large_02_perf_dense.json,20,95,18,0.305 ms,0.128 ms,0.1,"[18]"
+large_03_random.json,30,69,0,0.174 ms,0.162 ms,125.0,"[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23, 24, 25, 26, 27, 28, 29]"
+medium_01_mixed.json,12,46,8,0.203 ms,0.182 ms,0.1,"[8]"
+medium_02_dense.json,14,127,12,0.183 ms,0.131 ms,0.1,"[12]"
+medium_03_sparse.json,11,22,0,0.052 ms,0.055 ms,54.0,"[0, 1, 2, 3, 4, 5, 6, 8, 9, 10]"
+small_01_dag.json,6,7,0,0.025 ms,0.109 ms,32.0,"[0, 1, 2, 3, 4, 5]"
+small_02_cycle.json,6,18,3,0.171 ms,0.115 ms,0.1,"[3]"
+small_03_mixed.json,8,22,5,0.164 ms,0.125 ms,0.1,"[5]"
