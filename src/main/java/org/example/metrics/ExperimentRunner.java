@@ -11,22 +11,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.Locale;
 
-/**
- * Экспериментальный раннер:
- * считает SCC, топосорт, DAG SP/LP и сохраняет метрики в CSV.
- */
+
 public class ExperimentRunner {
     public static void main(String[] args) throws Exception {
         Locale.setDefault(Locale.US);
         File dataDir = new File("data");
         if (!dataDir.exists()) {
-            System.err.println("❌ data/ not found!");
+            System.err.println(" data/ not found!");
             return;
         }
 
         File[] files = dataDir.listFiles((d, n) -> n.endsWith(".json"));
         if (files == null || files.length == 0) {
-            System.err.println("❌ No datasets found in /data/");
+            System.err.println(" No datasets found in /data/");
             return;
         }
 
@@ -64,7 +61,7 @@ public class ExperimentRunner {
                         m.topoPushes, m.topoPops, topoMs
                 ));
 
-                // --- DAG Shortest / Longest Path ---
+                // shortest longest
                 double shortestMs = 0, longestMs = 0, criticalLen = 0;
                 String criticalPath = "[]";
 
@@ -95,7 +92,7 @@ public class ExperimentRunner {
                 fwDag.flush();
             }
 
-            System.out.println("✅ Experiments complete. Results saved to /metrics/");
+            System.out.println("Experiments complete. Results saved to /metrics/");
         }
     }
 }
