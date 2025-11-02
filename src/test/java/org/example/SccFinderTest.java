@@ -35,4 +35,27 @@ public class SccFinderTest {
         var sccs = f.findSccs();
         assertEquals(3, sccs.size());
     }
+    @Test
+    void tarjanMultipleSCCs() {
+        GraphLoader.GraphData g = new GraphLoader.GraphData();
+        g.directed = true;
+        g.n = 6;
+        g.edges = List.of(
+                new GraphLoader.Edge(0, 1, 1.0),
+                new GraphLoader.Edge(1, 2, 1.0),
+                new GraphLoader.Edge(2, 0, 1.0), // первая SCC
+                new GraphLoader.Edge(3, 4, 1.0),
+                new GraphLoader.Edge(4, 3, 1.0)  // вторая SCC
+        );
+
+        Metrics m = new Metrics();
+        SccFinder finder = new SccFinder(g, m);
+        var sccs = finder.findSccs();
+
+        assertEquals(3, sccs.size(), "Expected 3 separate SCCs");
+        assertTrue(sccs.stream().anyMatch(s -> s.size() == 3));
+        assertTrue(sccs.stream().anyMatch(s -> s.size() == 2));
+        assertTrue(sccs.stream().anyMatch(s -> s.size() == 1));
+    }
+
 }

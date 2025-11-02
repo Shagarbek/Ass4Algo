@@ -38,4 +38,30 @@ public class DagPathTest {
         System.out.println("Shortest to node 4: " + shortest.dist[4]);
         System.out.println("Longest path: " + longest.path + " length=" + longest.maxDist);
     }
+    @Test
+    void testDAGWithIsolatedNodes() {
+        GraphLoader.GraphData g = new GraphLoader.GraphData();
+        g.directed = true;
+        g.n = 5;
+        g.source = 0;
+        g.edges = List.of(
+                new GraphLoader.Edge(0, 1, 2.0),
+                new GraphLoader.Edge(1, 2, 3.0)
+                // вершины 3 и 4 без связей
+        );
+        g.weight_model = "edge";
+
+        Metrics m = new Metrics();
+        var shortest = DagShortest.run(g, m);
+        var longest = DagLongest.run(g, m);
+
+        assertTrue(shortest.dist[2] > 0, "Shortest path from 0→2 should exist");
+        assertTrue(longest.maxDist > 0, "Longest path should be positive");
+        assertNotNull(longest.path, "Longest path list must not be null");
+        assertFalse(longest.path.isEmpty(), "Longest path must not be empty");
+
+        assertTrue(Double.isInfinite(shortest.dist[3]));
+        assertTrue(Double.isInfinite(shortest.dist[4]));
+    }
+
 }
