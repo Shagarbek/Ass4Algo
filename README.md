@@ -8,17 +8,17 @@
 This project benchmarks graph algorithms on several datasets of varying size and density.  
 All graphs were either **DAGs**, **cyclic**, or **mixed**, with **positive random edge weights**.
 
-| Dataset | Vertices (n) | Edges (m) | Structure | Weight Model |
-|----------|--------------|------------|------------|---------------|
-| small_01_dag.json | 6 | 7 | DAG | Uniform(1–10) |
-| small_02_cycle.json | 6 | 18 | Cyclic | Uniform(1–10) |
-| small_03_mixed.json | 8 | 22 | Mixed | Uniform(1–10) |
-| medium_01_mixed.json | 12 | 46 | Mixed | Uniform(1–10) |
-| medium_02_dense.json | 14 | 127 | Dense | Uniform(1–10) |
-| medium_03_sparse.json | 11 | 22 | Sparse | Uniform(1–10) |
-| large_01_perf_sparse.json | 25 | 24 | Sparse | Uniform(1–10) |
-| large_02_perf_dense.json | 20 | 95 | Dense | Uniform(1–10) |
-| large_03_random.json | 30 | 69 | Random | Uniform(1–10) |
+| Dataset | Vertices (n) | Edges (m) | Structure |
+|----------|--------------|------------|------------|
+| small_01_dag.json | 6 | 7 | DAG |
+| small_02_cycle.json | 6 | 18 | Cyclic |
+| small_03_mixed.json | 8 | 22 | Mixed |
+| medium_01_mixed.json | 12 | 46 | Mixed |
+| medium_02_dense.json | 14 | 127 | Dense |
+| medium_03_sparse.json | 11 | 22 | Sparse |
+| large_01_perf_sparse.json | 25 | 24 | Sparse |
+| large_02_perf_dense.json | 20 | 95 | Dense |
+| large_03_random.json | 30 | 69 | Random |
 
 ---
 
